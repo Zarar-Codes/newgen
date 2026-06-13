@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>InoDo AI Website Builder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0B0F19',
+            sidebar: '#111827',
+            card: '#1A2234',
+            primary: '#3B82F6',
+            secondary: '#8B5CF6'
+          },
+          boxShadow: {
+            glow: '0 0 0 1px rgba(255,255,255,0.08), 0 20px 60px rgba(0,0,0,0.35)'
+          },
+          backdropBlur: {
+            xs: '2px'
+          }
+        }
+      }
+    }
+  </script>
+  <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B0F19;
+      --sidebar: #111827;
+      --card: #1A2234;
+      --primary: #3B82F6;
+      --secondary: #8B5CF6;
+      --border: rgba(255,255,255,0.08);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.62);
+    }
+    html, body { height: 100%; }
+    body {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(139,92,246,0.13), transparent 25%),
+        linear-gradient(180deg, #0B0F19 0%, #080B12 100%);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    .glass { background: rgba(26,34,52,0.72); backdrop-filter: blur(18px); border: 1px solid var(--border); }
+    .glass-dark { background: rgba(17,24,39,0.88); backdrop-filter: blur(18px); border: 1px solid var(--border); }
+    .soft-shadow { box-shadow: 0 25px 80px rgba(0,0,0,0.38); }
+    .panel {
+      background: linear-gradient(180deg, rgba(26,34,52,0.95), rgba(18,24,38,0.92));
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+    }
+    .tab-active {
+      background: linear-gradient(180deg, rgba(59,130,246,0.24), rgba(139,92,246,0.18));
+      border-color: rgba(59,130,246,0.45) !important;
+      color: white !important;
+    }
+    .sidebar-card { border: 1px solid var(--border); background: rgba(17,24,39,0.82); }
+    .project-active {
+      background: linear-gradient(90deg, rgba(59,130,246,0.24), rgba(139,92,246,0.14));
+      border-color: rgba(59,130,246,0.34) !important;
+      transform: translateY(-1px);
+    }
+    .msg-bubble {
+      max-width: min(820px, 100%);
+      border: 1px solid var(--border);
+      word-break: break-word;
+    }
+    .msg-user {
+      background: linear-gradient(180deg, rgba(59,130,246,0.18), rgba(59,130,246,0.08));
+    }
+    .msg-ai {
+      background: rgba(26,34,52,0.86);
+    }
+    .msg-rendered h1, .msg-rendered h2, .msg-rendered h3 {
+      font-weight: 700;
+      margin: 0.4rem 0 0.45rem;
+      line-height: 1.15;
+    }
+    .msg-rendered h1 { font-size: 1.2rem; }
+    .msg-rendered h2 { font-size: 1.05rem; }
+    .msg-rendered p, .msg-rendered li { color: rgba(255,255,255,0.88); line-height: 1.65; }
+    .msg-rendered ul, .msg-rendered ol { padding-left: 1.15rem; margin: 0.5rem 0; }
+    .msg-rendered code.inline-code {
+      padding: 0.15rem 0.35rem;
+      border-radius: 0.4rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+    }
+    .msg-rendered pre {
+      overflow-x: auto;
+      padding: 0.9rem 1rem;
+      border-radius: 1rem;
+      background: rgba(4,9,20,0.85);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin: 0.7rem 0;
+    }
+    .msg-rendered pre code {
+      color: #d7e7ff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+    .msg-rendered a { color: #8ab4ff; text-decoration: underline; }
+    .safe-inset-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+    #appFooter { transform: translateY(calc(-1 * var(--kb-offset, 0px))); transition: transform 0.18s ease; }
+    .editor-line-numbers {
+      user-select: none;
+      color: rgba(255,255,255,0.35);
+      background: rgba(10,14,25,0.96);
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .code-textarea {
+      color: transparent;
+      caret-color: white;
+      background: transparent;
+      resize: none;
+      outline: none;
+      white-space: pre;
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.55;
+      tab-size: 2;
+    }
+    .code-highlight {
+      pointer-events: none;
+      white-space: pre;
+      overflow: hidden;
+      color: #dbeafe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.55;
+      tab-size: 2;
+    }
+    .code-highlight .tag { color: #93c5fd; }
+    .code-highlight .attr { color: #c4b5fd; }
+    .code-highlight .str { color: #86efac; }
+    .code-highlight .num { color: #fda4af; }
+    .code-highlight .com { color: #94a3b8; font-style: italic; }
+    .modal-backdrop { background: rgba(2,6,23,0.72); }
+    .kbd { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); border-bottom-width: 2px; }
+    .btn {
+      transition: transform .18s ease, background .18s ease, border-color .18s ease, opacity .18s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .hidden-mobile { display: none; }
+    @media (min-width: 768px) {
+      .hidden-mobile { display: flex; }
+    }
+    .mobile-drawer {
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+    }
+    .mobile-drawer.open { transform: translateX(0); }
+    .fade-in { animation: fadeIn .22s ease both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div id="app" class="flex flex-1 overflow-hidden min-h-0">
+    <aside id="sidebar" class="mobile-drawer fixed inset-y-0 left-0 z-50 w-[280px] md:static md:translate-x-0 md:flex flex-col gap-4 p-4 bg-[#111827] md:bg-transparent md:border-r md:border-white/5">
+      <div class="sidebar-card rounded-3xl p-4 soft-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <div class="text-xl font-extrabold tracking-tight">InoDo</div>
+            <div class="text-xs text-white/50">AI Website Builder SaaS</div>
+          </div>
+          <button id="closeSidebarBtn" class="md:hidden p-2 rounded-xl hover:bg-white/5 border border-white/5">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <button id="newProjectBtn" class="btn w-full rounded-2xl px-4 py-3 font-semibold bg-gradient-to-r from-primary to-secondary text-white shadow-glow border border-white/10 flex items-center justify-center gap-2">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>New Project</span>
+        </button>
+      </div>
+
+      <div class="flex-1 min-h-0 sidebar-card rounded-3xl p-3 flex flex-col soft-shadow">
+        <div class="flex items-center justify-between px-2 pb-3">
+          <div class="font-semibold">Projects</div>
+          <span id="projectCount" class="text-xs text-white/45"></span>
+        </div>
+        <div id="projectList" class="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1"></div>
+      </div>
+
+      <div class="sidebar-card rounded-3xl p-3 mt-auto soft-shadow">
+        <div class="flex items-center justify-between gap-3">
+          <button id="settingsSidebarBtn" class="btn flex-1 rounded-2xl px-4 py-3 border border-white/10 hover:bg-white/5 flex items-center justify-center gap-2">
+            <i data-lucide="settings-2" class="w-4 h-4"></i>
+            <span>Settings</span>
+          </button>
+          <div class="px-3 py-3 rounded-2xl border border-white/10 bg-white/5 flex items-center gap-2 text-xs text-white/70">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="userStatus">Guest</span>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs text-white/45 px-1">
+          <span>Credits</span>
+          <span id="creditsLabel" class="font-semibold text-white/75">0</span>
+        </div>
+      </div>
+    </aside>
+
+    <div id="overlay" class="hidden md:hidden fixed inset-0 z-40 bg-black/60"></div>
+
+    <main class="flex-1 min-w-0 flex flex-col overflow-hidden">
+      <header class="flex-shrink-0 border-b border-white/5 bg-[rgba(11,15,25,0.74)] backdrop-blur-xl">
+        <div class="px-3 md:px-5 py-3 flex items-center gap-3">
+          <button id="menuBtn" class="md:hidden p-2 rounded-xl border border-white/10 hover:bg-white/5">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div class="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/5">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+          </div>
+          <div class="flex-1 min-w-0 text-center md:text-left">
+            <div id="currentProjectName" class="font-semibold truncate">Untitled Project</div>
+            <div class="text-xs text-white/45 truncate">AI Website Builder • Live generation, preview, and code export</div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button data-tab="preview" class="tabBtn btn px-3 md:px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-sm">Preview</button>
+            <button data-tab="code" class="tabBtn btn px-3 md:px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-sm">Code</button>
+            <button id="downloadBtn" class="btn px-3 md:px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-sm hidden sm:inline-flex items-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Download</span>
+            </button>
+            <button id="settingsBtn" class="btn px-3 md:px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-sm hidden sm:inline-flex items-center gap-2">
+              <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+              <span>Settings</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section class="flex-1 min-h-0 overflow-hidden relative">
+        <div id="chatPanel" class="absolute inset-0 flex flex-col min-h-0">
+          <div id="messages" class="flex-1 overflow-y-auto px-3 md:px-6 py-5 space-y-4"></div>
+          <div id="typingRow" class="hidden px-3 md:px-6 pb-3">
+            <div class="msg-bubble msg-ai rounded-2xl px-4 py-3 inline-flex items-center gap-2 text-sm text-white/70">
+              <span class="flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-white/40 animate-bounce"></span>
+                <span class="w-2 h-2 rounded-full bg-white/40 animate-bounce [animation-delay:0.1s]"></span>
+                <span class="w-2 h-2 rounded-full bg-white/40 animate-bounce [animation-delay:0.2s]"></span>
+              </span>
+              <span>Building your site…</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="previewPanel" class="absolute inset-0 hidden flex-col min-h-0">
+          <div class="px-3 md:px-6 py-4 min-h-0 flex-1">
+            <div class="panel rounded-3xl overflow-hidden h-full flex flex-col">
+              <div class="flex items-center justify-between px-4 py-3 border-b border-white/8 bg-white/3">
+                <div class="flex items-center gap-2 text-sm text-white/70">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                  <span>Live Preview</span>
+                </div>
+                <div class="text-xs text-white/45">Sandboxed iframe</div>
+              </div>
+              <div class="flex-1 min-h-0 bg-[#0A0E18] p-3 md:p-4">
+                <div class="w-full h-full rounded-2xl overflow-hidden border border-white/10 bg-white/5">
+                  <iframe id="previewFrame" sandbox="allow-forms allow-scripts allow-same-origin allow-popups" class="w-full h-full min-h-[55vh] md:min-h-full bg-white"></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="codePanel" class="absolute inset-0 hidden flex-col min-h-0">
+          <div class="px-3 md:px-6 py-4 min-h-0 flex-1">
+            <div class="panel rounded-3xl overflow-hidden h-full flex flex-col">
+              <div class="flex items-center justify-between px-4 py-3 border-b border-white/8 bg-white/3">
+                <div class="flex items-center gap-2 text-sm text-white/70">
+                  <i data-lucide="file-code-2" class="w-4 h-4"></i>
+                  <span>Generated HTML</span>
+                </div>
+                <button id="copyCodeBtn" class="btn px-3 py-2 rounded-xl border border-white/10 hover:bg-white/5 text-sm flex items-center gap-2">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                  <span>Copy</span>
+                </button>
+              </div>
+              <div class="flex-1 min-h-0 flex bg-[#0A0E18]">
+                <div id="lineNumbers" class="editor-line-numbers w-14 md:w-16 p-4 text-right text-xs leading-6 overflow-hidden"></div>
+                <div class="relative flex-1 min-h-0">
+                  <pre id="codeHighlight" class="code-highlight absolute inset-0 p-4 text-sm leading-6 overflow-auto"></pre>
+                  <textarea id="codeEditor" spellcheck="false" class="code-textarea absolute inset-0 p-4 text-sm leading-6 overflow-auto w-full h-full"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer id="appFooter" class="flex-shrink-0 safe-inset-bottom border-t border-white/5 bg-[rgba(11,15,25,0.92)] backdrop-blur-xl">
+        <div class="px-3 md:px-5 py-3">
+          <div class="panel rounded-3xl p-3 md:p-4">
+            <div class="flex items-end gap-3">
+              <div class="flex-1 min-w-0">
+                <textarea id="promptInput" rows="1" placeholder="Describe the website you want... Press Enter to send, Shift+Enter for newline." class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none placeholder:text-white/35 text-sm md:text-[15px] leading-6 min-h-[52px] max-h-48 overflow-y-auto"></textarea>
+                <div class="mt-2 flex items-center justify-between text-[11px] text-white/40 gap-2 flex-wrap">
+                  <div class="flex items-center gap-2">
+                    <span class="kbd rounded-lg px-2 py-1">Enter</span>
+                    <span>Send</span>
+                    <span class="text-white/20">•</span>
+                    <span class="kbd rounded-lg px-2 py-1">Shift</span>
+                    <span>+</span>
+                    <span class="kbd rounded-lg px-2 py-1">Enter</span>
+                    <span>New line</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span id="freeNotice" class="text-white/55">Free website branding applies on first generation.</span>
+                  </div>
+                </div>
+              </div>
+              <button id="sendBtn" class="btn shrink-0 rounded-2xl px-4 md:px-5 py-3 font-semibold bg-gradient-to-r from-primary to-secondary text-white shadow-glow border border-white/10 flex items-center gap-2 min-h-[52px]">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>Send</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <div id="settingsModal" class="hidden fixed inset-0 z-[60] modal-backdrop backdrop-blur-sm">
+    <div class="absolute inset-0" id="settingsBackdrop"></div>
+    <div class="relative mx-auto my-3 md:my-8 w-[94vw] max-w-3xl h-[calc(100dvh-1.5rem)] md:h-[calc(100dvh-4rem)] flex items-center justify-center px-2">
+      <div class="glass-dark rounded-3xl w-full max-h-full overflow-hidden soft-shadow flex flex-col">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-white/5">
+          <div>
+            <div class="text-lg font-bold">Settings</div>
+            <div class="text-xs text-white/45">API, account, credits, and session control</div>
+          </div>
+          <button id="closeSettingsBtn" class="p-2 rounded-xl hover:bg-white/5 border border-white/5">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 md:p-5 grid gap-4 md:grid-cols-2">
+          <div class="panel rounded-3xl p-4 md:p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="key-round" class="w-4 h-4 text-blue-300"></i>
+              <div class="font-semibold">API Settings</div>
+            </div>
+            <label class="block text-xs text-white/45 mb-1">API URL</label>
+            <input id="apiUrlInput" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none mb-3 text-sm" />
+            <label class="block text-xs text-white/45 mb-1">API Key</label>
+            <input id="apiKeyInput" type="password" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none mb-3 text-sm" placeholder="sk-..." />
+            <label class="block text-xs text-white/45 mb-1">Model ID</label>
+            <input id="modelIdInput" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none text-sm" />
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button id="testConnectionBtn" class="btn px-4 py-3 rounded-2xl border border-white/10 hover:bg-white/5 text-sm flex items-center gap-2">
+                <i data-lucide="wifi" class="w-4 h-4"></i>
+                <span>Test Connection</span>
+              </button>
+              <button id="saveSettingsBtn" class="btn px-4 py-3 rounded-2xl bg-primary text-white border border-white/10 text-sm font-semibold flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>Save</span>
+              </button>
+              <button id="cancelSettingsBtn" class="btn px-4 py-3 rounded-2xl border border-white/10 hover:bg-white/5 text-sm">Cancel</button>
+            </div>
+          </div>
+
+          <div class="panel rounded-3xl p-4 md:p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="user-cog" class="w-4 h-4 text-violet-300"></i>
+              <div class="font-semibold">Account</div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-4 text-sm">
+              <button id="authLoginTab" class="authTab btn rounded-2xl border border-white/10 bg-white/5 py-3 font-semibold">Login</button>
+              <button id="authSignupTab" class="authTab btn rounded-2xl border border-white/10 bg-white/5 py-3 font-semibold">Sign Up</button>
+            </div>
+            <div id="authFormWrap">
+              <label class="block text-xs text-white/45 mb-1">Username</label>
+              <input id="authUsername" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none mb-3 text-sm" placeholder="zarar" />
+              <label class="block text-xs text-white/45 mb-1">Password</label>
+              <input id="authPassword" type="password" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none mb-3 text-sm" placeholder="••••••••" />
+              <button id="authActionBtn" class="btn w-full rounded-2xl bg-gradient-to-r from-primary to-secondary text-white border border-white/10 py-3 font-semibold flex items-center justify-center gap-2">
+                <i data-lucide="log-in" class="w-4 h-4"></i>
+                <span id="authActionLabel">Login</span>
+              </button>
+            </div>
+            <div id="accountInfo" class="hidden space-y-3">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div class="text-xs text-white/45">Signed in as</div>
+                <div id="signedInUser" class="font-semibold mt-1"></div>
+                <div class="mt-3 flex items-center justify-between text-sm">
+                  <span class="text-white/55">Credits</span>
+                  <span id="accountCredits" class="font-semibold"></span>
+                </div>
+                <div class="mt-2 flex items-center justify-between text-sm">
+                  <span class="text-white/55">Free branding</span>
+                  <span id="brandingStatus" class="font-semibold"></span>
+                </div>
+              </div>
+              <button id="logoutBtn" class="btn w-full rounded-2xl border border-red-400/20 bg-red-500/10 text-red-200 py-3 font-semibold flex items-center justify-center gap-2">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'inodo_ai_website_builder_v1';
+    const DEFAULT_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+    const DEFAULT_MODEL_ID = 'deepseek/deepseek-r1:free';
+    const SYSTEM_PROMPT = `
+You are an expert web developer.
+
+Output ONLY raw HTML.
+No markdown.
+No explanations.
+No code fences.
+
+Return complete HTML documents only.
+`;
+
+    const els = {};
+    const state = {
+      activeTab: 'chat',
+      currentProjectId: null,
+      sidebarOpen: false,
+      authMode: 'login',
+      typing: false,
+      settings: {
+        apiUrl: DEFAULT_API_URL,
+        apiKey: '',
+        modelId: DEFAULT_MODEL_ID
+      },
+      auth: {
+        currentUser: null,
+        users: {}
+      },
+      projects: [],
+      messagesByProject: {},
+      generatedHtmlByProject: {},
+      codeDraftByProject: {},
+      autoPromptBrandingPending: false
+    };
+
+    function uid() {
+      return 'p_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    }
+
+    function escapeHtml(str = '') {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function sanitizeHtmlDoc(html) {
+      let out = String(html || '').trim();
+      out = out.replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
+      const firstDoctype = out.toLowerCase().indexOf('<!doctype');
+      if (firstDoctype > 0) out = out.slice(firstDoctype);
+      return out;
+    }
+
+    function nowLabel(ts = Date.now()) {
+      return new Intl.DateTimeFormat(undefined, {
+        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+      }).format(new Date(ts));
+    }
+
+    function projectTitleFromPrompt(prompt) {
+      const clean = String(prompt || '').trim().replace(/\s+/g, ' ');
+      if (!clean) return 'Untitled Project';
+      const first = clean.slice(0, 42).replace(/[.?!,:;]+$/g, '');
+      return first.length < clean.length ? first + '…' : first;
+    }
+
+    function defaultProject() {
+      return {
+        id: uid(),
+        name: 'Untitled Project',
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+    }
+
+    function createWelcomeMessages() {
+      return [
+        {
+          role: 'assistant',
+          content: 'Tell me what to build. I will generate a complete production-style website, then you can preview, edit the code, and export it.',
+          ts: Date.now() - 6000
+        }
+      ];
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        Object.assign(state.settings, data.settings || {});
+        Object.assign(state.auth, data.auth || { currentUser: null, users: {} });
+        state.projects = Array.isArray(data.projects) ? data.projects : [];
+        state.currentProjectId = data.currentProjectId || null;
+        state.activeTab = data.activeTab || 'chat';
+        state.messagesByProject = data.messagesByProject || {};
+        state.generatedHtmlByProject = data.generatedHtmlByProject || {};
+        state.codeDraftByProject = data.codeDraftByProject || {};
+        if (!state.projects.length) state.projects = [defaultProject()];
+        if (!state.currentProjectId || !state.projects.some(p => p.id === state.currentProjectId)) {
+          state.currentProjectId = state.projects[0].id;
+        }
+      } catch (err) {
+        console.warn('Failed to load state:', err);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        settings: state.settings,
+        auth: state.auth,
+        projects: state.projects,
+        currentProjectId: state.currentProjectId,
+        activeTab: state.activeTab,
+        messagesByProject: state.messagesByProject,
+        generatedHtmlByProject: state.generatedHtmlByProject,
+        codeDraftByProject: state.codeDraftByProject
+      }));
+    }
+
+    function currentProject() {
+      return state.projects.find(p => p.id === state.currentProjectId) || state.projects[0];
+    }
+
+    function currentMessages() {
+      const id = state.currentProjectId;
+      if (!state.messagesByProject[id]) state.messagesByProject[id] = createWelcomeMessages();
+      return state.messagesByProject[id];
+    }
+
+    function currentHtml() {
+      const id = state.currentProjectId;
+      if (state.codeDraftByProject[id]) return state.codeDraftByProject[id];
+      return state.generatedHtmlByProject[id] || demoHtml();
+    }
+
+    function updateProjectTouch(id = state.currentProjectId) {
+      const p = state.projects.find(x => x.id === id);
+      if (p) p.updatedAt = Date.now();
+    }
+
+    function demoHtml() {
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InoDo Demo</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: radial-gradient(circle at top, #1d4ed8 0, #0b0f19 38%, #05070d 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(1100px, 100%);
+      background: rgba(17,24,39,.72);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(18px);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.45);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: rgba(255,255,255,.8);
+      font-size: 14px;
+    }
+    h1 { font-size: clamp(42px, 8vw, 88px); line-height: .95; margin: 18px 0 12px; }
+    p { color: rgba(255,255,255,.72); font-size: 18px; line-height: 1.7; max-width: 62ch; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 34px; }
+    .item {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 22px;
+    }
+    .item strong { display: block; margin-bottom: 8px; font-size: 20px; }
+    .cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 20px; margin-top: 34px; border-radius: 999px;
+      background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+      color: white; text-decoration: none; font-weight: 700;
+      box-shadow: 0 15px 40px rgba(59,130,246,.35);
+    }
+    .inodo-brand {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 2147483647;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(11,15,25,.88);
+      color: rgba(255,255,255,.75);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
+    }
+    @media (max-width: 768px) { .card { padding: 22px; } .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <span class="badge">AI Website Builder Demo</span>
+    <h1>Build faster. Ship smarter.</h1>
+    <p>This is a polished starter generated by InoDo. Replace this content with your own product, landing page, or SaaS experience in one prompt.</p>
+    <div class="grid">
+      <div class="item"><strong>Fast</strong><span>Launch-ready structure with premium visual hierarchy.</span></div>
+      <div class="item"><strong>Responsive</strong><span>Looks clean on desktop, tablet, and mobile without extra work.</span></div>
+      <div class="item"><strong>Editable</strong><span>Use the code panel to tweak HTML immediately.</span></div>
+    </div>
+    <a class="cta" href="#">Get Started</a>
+  </main>
+  <div class="inodo-brand">Made with InoDo</div>
+</body>
+</html>`;
+    }
+
+    function ensureProjectData(projectId) {
+      if (!state.messagesByProject[projectId]) state.messagesByProject[projectId] = createWelcomeMessages();
+      if (!state.generatedHtmlByProject[projectId]) state.generatedHtmlByProject[projectId] = demoHtml();
+      if (!state.codeDraftByProject[projectId]) state.codeDraftByProject[projectId] = state.generatedHtmlByProject[projectId];
+    }
+
+    function setActiveProject(id) {
+      state.currentProjectId = id;
+      ensureProjectData(id);
+      updateProjectTouch(id);
+      syncUi();
+      saveState();
+    }
+
+    function newProject() {
+      const p = defaultProject();
+      p.name = 'Untitled Project';
+      state.projects.unshift(p);
+      state.currentProjectId = p.id;
+      state.messagesByProject[p.id] = createWelcomeMessages();
+      state.generatedHtmlByProject[p.id] = demoHtml();
+      state.codeDraftByProject[p.id] = state.generatedHtmlByProject[p.id];
+      state.activeTab = 'chat';
+      saveState();
+      syncUi();
+      closeSidebarOnMobile();
+    }
+
+    function currentUser() {
+      return state.auth.currentUser ? state.auth.users[state.auth.currentUser] : null;
+    }
+
+    function getCredits() {
+      const user = currentUser();
+      return user ? (user.credits ?? 0) : 0;
+    }
+
+    function setCredits(value) {
+      const user = currentUser();
+      if (!user) return;
+      user.credits = Math.max(0, Math.floor(value));
+      saveState();
+      syncUi();
+    }
+
+    function normalizeUser(user) {
+      if (!user) return null;
+      if (typeof user.credits !== 'number') user.credits = 1;
+      if (typeof user.freeBrandingUsed !== 'number') user.freeBrandingUsed = 0;
+      return user;
+    }
+
+    function authLabel() {
+      const user = currentUser();
+      return user ? user.username : 'Guest';
+    }
+
+    function showSettings() {
+      fillSettingsForm();
+      renderAuthPanel();
+      els.settingsModal.classList.remove('hidden');
+    }
+
+    function hideSettings() {
+      els.settingsModal.classList.add('hidden');
+    }
+
+    function closeSidebarOnMobile() {
+      if (window.innerWidth < 768) {
+        state.sidebarOpen = false;
+        els.sidebar.classList.remove('open');
+        els.overlay.classList.add('hidden');
+      }
+    }
+
+    function setTab(tab) {
+      state.activeTab = tab;
+      saveState();
+      syncUi();
+    }
+
+    function renderProjects() {
+      els.projectList.innerHTML = '';
+      els.projectCount.textContent = `${state.projects.length} total`;
+      const projects = [...state.projects].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      projects.forEach(project => {
+        const active = project.id === state.currentProjectId;
+        const el = document.createElement('button');
+        el.className = `btn text-left w-full rounded-2xl p-3 border transition ${active ? 'project-active border-white/15' : 'border-white/5 hover:bg-white/5'}`;
+        el.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="font-semibold truncate text-sm">${escapeHtml(project.name)}</div>
+              <div class="text-xs text-white/45 mt-1">${nowLabel(project.updatedAt || project.createdAt)}</div>
+            </div>
+            ${active ? '<span class="text-[10px] uppercase tracking-widest px-2 py-1 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/20">Active</span>' : ''}
+          </div>
+        `;
+        el.addEventListener('click', () => setActiveProject(project.id));
+        els.projectList.appendChild(el);
+      });
+    }
+
+    function renderMessages() {
+      const messages = currentMessages();
+      els.messages.innerHTML = '';
+      messages.forEach(msg => {
+        const row = document.createElement('div');
+        const isUser = msg.role === 'user';
+        row.className = `flex ${isUser ? 'justify-end' : 'justify-start'} fade-in`;
+
+        const bubble = document.createElement('div');
+        bubble.className = `msg-bubble ${isUser ? 'msg-user' : 'msg-ai'} rounded-2xl px-4 py-3 md:px-5 md:py-4`;
+
+        const header = document.createElement('div');
+        header.className = 'flex items-center justify-between gap-3 mb-2 text-xs text-white/40';
+        header.innerHTML = `<span>${isUser ? 'You' : 'InoDo AI'}</span><span>${msg.ts ? nowLabel(msg.ts) : ''}</span>`;
+        bubble.appendChild(header);
+
+        const body = document.createElement('div');
+        body.className = 'msg-rendered text-sm md:text-[15px] leading-7';
+        body.innerHTML = isUser ? renderPlainTextAsHtml(msg.content) : renderMarkdown(msg.content);
+        bubble.appendChild(body);
+
+        row.appendChild(bubble);
+        els.messages.appendChild(row);
+      });
+      setTimeout(() => {
+        if (els.messages) els.messages.scrollTop = els.messages.scrollHeight;
+      }, 0);
+    }
+
+    function renderPlainTextAsHtml(text) {
+      const safe = escapeHtml(text).replace(/\n/g, '<br>');
+      return `<p>${safe}</p>`;
+    }
+
+    function renderMarkdown(md) {
+      const text = String(md || '');
+      const tokens = [];
+      let buffer = text;
+      buffer = buffer.replace(/```([\s\S]*?)```/g, (_, code) => {
+        const id = tokens.length;
+        tokens.push(`<pre><code>${escapeHtml(code.trim())}</code></pre>`);
+        return `@@CODE_${id}@@`;
+      });
+      buffer = escapeHtml(buffer);
+      buffer = buffer
+        .replace(/^### (.*)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.*)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noreferrer noopener">$1</a>')
+        .replace(/^[-*] (.*)$/gm, '<li>$1</li>');
+      buffer = buffer.replace(/(?:<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+      buffer = buffer.replace(/\n{2,}/g, '</p><p>').replace(/^(.*)$/s, '<p>$1</p>');
+      buffer = buffer.replace(/<p><h1>/g, '<h1>').replace(/<\/h1><\/p>/g, '</h1>')
+                     .replace(/<p><h2>/g, '<h2>').replace(/<\/h2><\/p>/g, '</h2>')
+                     .replace(/<p><h3>/g, '<h3>').replace(/<\/h3><\/p>/g, '</h3>')
+                     .replace(/<p><ul>/g, '<ul>').replace(/<\/ul><\/p>/g, '</ul>');
+      buffer = buffer.replace(/<p>@@CODE_(\d+)@@<\/p>/g, (_, i) => tokens[Number(i)] || '');
+      buffer = buffer.replace(/<p>\s*<\/p>/g, '');
+      return buffer;
+    }
+
+    function renderCode() {
+      const html = currentHtml();
+      els.codeEditor.value = html;
+      els.codeHighlight.innerHTML = highlightCode(html);
+      const lines = html.split('\n').length;
+      els.lineNumbers.innerHTML = Array.from({ length: lines }, (_, i) => `<div>${i + 1}</div>`).join('');
+    }
+
+    function highlightCode(code) {
+      const safe = escapeHtml(code);
+      return safe
+        .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="com">$1</span>')
+        .replace(/(&lt;\/?[a-zA-Z0-9:-]+)(.*?)(\/??&gt;)/g, (_, start, attrs, end) => {
+          const highlightedAttrs = attrs
+            .replace(/([a-zA-Z:-]+)(=)/g, '<span class="attr">$1</span>$2')
+            .replace(/(&quot;.*?&quot;|&#39;.*?&#39;)/g, '<span class="str">$1</span>');
+          return `<span class="tag">${start}</span>${highlightedAttrs}${end}`;
+        })
+        .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="num">$1</span>');
+    }
+
+    function updatePreview() {
+      const html = currentHtml();
+      els.previewFrame.srcdoc = html;
+    }
+
+    function updateTabs() {
+      document.querySelectorAll('.tabBtn').forEach(btn => {
+        const active = btn.dataset.tab === state.activeTab;
+        btn.classList.toggle('tab-active', active);
+      });
+      els.chatPanel.classList.toggle('hidden', state.activeTab !== 'chat');
+      els.previewPanel.classList.toggle('hidden', state.activeTab !== 'preview');
+      els.codePanel.classList.toggle('hidden', state.activeTab !== 'code');
+    }
+
+    function renderAuthPanel() {
+      const user = currentUser();
+      const loggedIn = !!user;
+      els.authFormWrap.classList.toggle('hidden', loggedIn);
+      els.accountInfo.classList.toggle('hidden', !loggedIn);
+      els.authActionLabel.textContent = state.authMode === 'login' ? 'Login' : 'Create Account';
+      els.authActionBtn.querySelector('i').setAttribute('data-lucide', state.authMode === 'login' ? 'log-in' : 'user-plus');
+      els.signedInUser.textContent = loggedIn ? user.username : '';
+      els.accountCredits.textContent = loggedIn ? String(user.credits ?? 0) : '0';
+      els.brandingStatus.textContent = loggedIn ? (user.freeBrandingUsed ? 'Used' : 'Pending') : '-';
+      els.userStatus.textContent = loggedIn ? user.username : 'Guest';
+      els.creditsLabel.textContent = String(getCredits());
+      document.getElementById('freeNotice').textContent = loggedIn ? `You have ${getCredits()} credit(s) left.` : 'Sign up to get 1 free website with Made with InoDo branding.';
+      lucide?.createIcons?.();
+    }
+
+    function fillSettingsForm() {
+      els.apiUrlInput.value = state.settings.apiUrl || DEFAULT_API_URL;
+      els.apiKeyInput.value = state.settings.apiKey || '';
+      els.modelIdInput.value = state.settings.modelId || DEFAULT_MODEL_ID;
+    }
+
+    function syncUi() {
+      renderProjects();
+      renderMessages();
+      renderCode();
+      updatePreview();
+      updateTabs();
+      renderAuthPanel();
+      const project = currentProject();
+      els.currentProjectName.textContent = project ? project.name : 'Untitled Project';
+      saveState();
+      lucide?.createIcons?.();
+      renderMobileSidebar();
+    }
+
+    function renderMobileSidebar() {
+      if (window.innerWidth < 768) {
+        if (state.sidebarOpen) {
+          els.sidebar.classList.add('open');
+          els.overlay.classList.remove('hidden');
+        } else {
+          els.sidebar.classList.remove('open');
+          els.overlay.classList.add('hidden');
+        }
+      } else {
+        els.sidebar.classList.remove('open');
+        els.overlay.classList.add('hidden');
+      }
+    }
+
+    function injectBrandingIfNeeded(html) {
+      const user = currentUser();
+      if (!user) return html;
+      if (user.freeBrandingUsed) return html;
+      const badge = `\n  <div id="inodoBranding" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:10px 12px;border-radius:999px;background:rgba(11,15,25,.88);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(12px);">Made with InoDo</div>`;
+      if (html.includes('</body>')) return html.replace('</body>', `${badge}\n</body>`);
+      return html + badge;
+    }
+
+    function derivePromptContext(userPrompt) {
+      const project = currentProject();
+      const previous = currentHtml();
+      return [
+        `Current project name: ${project?.name || 'Untitled Project'}`,
+        `Current HTML:\n${previous}`,
+        `User request:\n${userPrompt}`,
+        `Return a full polished HTML document.`
+      ].join('\n\n');
+    }
+
+    function stripMarkdownCodeFences(text) {
+      return String(text || '').replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    }
+
+    async function generateWebsite(userPrompt) {
+      const project = currentProject();
+      const user = currentUser();
+      if (user && user.credits <= 0) {
+        alert('No credits left. Log in with a funded account or use the free first website credit.');
+        return;
+      }
+
+      state.typing = true;
+      els.typingRow.classList.remove('hidden');
+      renderMessages();
+      saveState();
+
+      const messages = [
+        { role: 'system', content: SYSTEM_PROMPT.trim() },
+        { role: 'user', content: derivePromptContext(userPrompt) }
+      ];
+
+      try {
+        const response = await fetch(state.settings.apiUrl || DEFAULT_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.settings.apiKey || ''}`
+          },
+          body: JSON.stringify({
+            model: state.settings.modelId || DEFAULT_MODEL_ID,
+            messages,
+            temperature: 0.7
+          })
+        });
+
+        const text = await response.text();
+        if (!response.ok) {
+          alert('API Error: ' + text);
+          return;
+        }
+        const data = JSON.parse(text);
+        const raw = data?.choices?.[0]?.message?.content || '';
+        let html = sanitizeHtmlDoc(raw);
+        if (!html) html = demoHtml();
+
+        if (user && !user.freeBrandingUsed) {
+          html = injectBrandingIfNeeded(html);
+          user.freeBrandingUsed = 1;
+          user.credits = Math.max(0, (user.credits ?? 0) - 1);
+          state.autoPromptBrandingPending = false;
+        }
+
+        state.generatedHtmlByProject[project.id] = html;
+        state.codeDraftByProject[project.id] = html;
+        state.messagesByProject[project.id].push({ role: 'assistant', content: 'Website generated successfully. Review the preview, inspect the code, and export when it is ready.', ts: Date.now() });
+        project.name = projectTitleFromPrompt(userPrompt);
+        updateProjectTouch(project.id);
+        syncUi();
+      } catch (err) {
+        alert('Request failed: ' + (err?.message || err));
+      } finally {
+        state.typing = false;
+        els.typingRow.classList.add('hidden');
+        saveState();
+        syncUi();
+      }
+    }
+
+    function sendPrompt() {
+      const input = els.promptInput.value.trim();
+      if (!input) return;
+      const project = currentProject();
+      const messages = currentMessages();
+      messages.push({ role: 'user', content: input, ts: Date.now() });
+      updateProjectTouch(project.id);
+      saveState();
+      syncUi();
+      els.promptInput.value = '';
+      autoGrowTextarea(els.promptInput);
+      generateWebsite(input);
+    }
+
+    function autoGrowTextarea(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 190) + 'px';
+    }
+
+    function copyCode() {
+      navigator.clipboard.writeText(currentHtml()).then(() => {
+        alert('Code copied to clipboard.');
+      }).catch(() => {
+        alert('Copy failed.');
+      });
+    }
+
+    function downloadCurrentHtml() {
+      const html = currentHtml();
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+    }
+
+    async function testConnection() {
+      try {
+        const response = await fetch(state.settings.apiUrl || DEFAULT_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.settings.apiKey || ''}`
+          },
+          body: JSON.stringify({
+            model: state.settings.modelId || DEFAULT_MODEL_ID,
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT.trim() },
+              { role: 'user', content: 'Return a minimal complete HTML document with a title only.' }
+            ],
+            temperature: 0
+          })
+        });
+
+        const text = await response.text();
+        if (!response.ok) {
+          alert('API Error: ' + text);
+          return;
+        }
+        const data = JSON.parse(text);
+        alert(data?.choices?.[0]?.message?.content ? 'Connection successful.' : 'Connection succeeded, but no content returned.');
+      } catch (err) {
+        alert('Connection failed: ' + (err?.message || err));
+      }
+    }
+
+    function saveSettingsFromModal() {
+      state.settings.apiUrl = els.apiUrlInput.value.trim() || DEFAULT_API_URL;
+      state.settings.apiKey = els.apiKeyInput.value.trim();
+      state.settings.modelId = els.modelIdInput.value.trim() || DEFAULT_MODEL_ID;
+      saveState();
+      hideSettings();
+      syncUi();
+    }
+
+    function loginOrSignup() {
+      const username = els.authUsername.value.trim();
+      const password = els.authPassword.value;
+      if (!username || !password) {
+        alert('Enter username and password.');
+        return;
+      }
+      if (state.authMode === 'signup') {
+        if (state.auth.users[username]) {
+          alert('Username already exists.');
+          return;
+        }
+        state.auth.users[username] = normalizeUser({
+          username,
+          password,
+          credits: 1,
+          freeBrandingUsed: 0
+        });
+        state.auth.currentUser = username;
+        alert('Account created. You received 1 free website credit.');
+      } else {
+        const user = state.auth.users[username];
+        if (!user || user.password !== password) {
+          alert('Invalid login.');
+          return;
+        }
+        state.auth.currentUser = username;
+      }
+      saveState();
+      syncUi();
+      renderAuthPanel();
+    }
+
+    function logout() {
+      state.auth.currentUser = null;
+      saveState();
+      syncUi();
+      renderAuthPanel();
+    }
+
+    function updateCodeDraftFromEditor() {
+      const value = els.codeEditor.value;
+      state.codeDraftByProject[state.currentProjectId] = value;
+      els.codeHighlight.innerHTML = highlightCode(value);
+      const lines = value.split('\n').length;
+      els.lineNumbers.innerHTML = Array.from({ length: lines }, (_, i) => `<div>${i + 1}</div>`).join('');
+      updatePreview();
+      saveState();
+    }
+
+    function bindEvents() {
+      els.newProjectBtn.addEventListener('click', newProject);
+      els.settingsBtn.addEventListener('click', showSettings);
+      els.settingsSidebarBtn.addEventListener('click', showSettings);
+      els.closeSettingsBtn.addEventListener('click', hideSettings);
+      els.cancelSettingsBtn.addEventListener('click', hideSettings);
+      els.settingsBackdrop.addEventListener('click', hideSettings);
+      els.downloadBtn.addEventListener('click', downloadCurrentHtml);
+      els.copyCodeBtn.addEventListener('click', copyCode);
+      els.sendBtn.addEventListener('click', sendPrompt);
+      els.authActionBtn.addEventListener('click', loginOrSignup);
+      els.logoutBtn.addEventListener('click', logout);
+      els.testConnectionBtn.addEventListener('click', testConnection);
+      els.saveSettingsBtn.addEventListener('click', saveSettingsFromModal);
+      els.menuBtn.addEventListener('click', () => { state.sidebarOpen = true; renderMobileSidebar(); });
+      els.closeSidebarBtn.addEventListener('click', closeSidebarOnMobile);
+      els.overlay.addEventListener('click', closeSidebarOnMobile);
+      document.querySelectorAll('.tabBtn').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
+      els.authLoginTab.addEventListener('click', () => { state.authMode = 'login'; renderAuthPanel(); });
+      els.authSignupTab.addEventListener('click', () => { state.authMode = 'signup'; renderAuthPanel(); });
+      els.promptInput.addEventListener('input', e => autoGrowTextarea(e.target));
+      els.promptInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendPrompt();
+        }
+      });
+      els.codeEditor.addEventListener('input', updateCodeDraftFromEditor);
+      els.codeEditor.addEventListener('scroll', () => {
+        els.codeHighlight.scrollTop = els.codeEditor.scrollTop;
+        els.codeHighlight.scrollLeft = els.codeEditor.scrollLeft;
+        els.lineNumbers.scrollTop = els.codeEditor.scrollTop;
+      });
+      window.addEventListener('resize', () => {
+        renderMobileSidebar();
+        autoGrowTextarea(els.promptInput);
+      });
+      if (window.visualViewport) {
+        const adjust = () => {
+          const vv = window.visualViewport;
+          const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+          document.documentElement.style.setProperty('--vvh', vv.height + 'px');
+          document.documentElement.style.setProperty('--kb-offset', offset + 'px');
+        };
+        window.visualViewport.addEventListener('resize', adjust);
+        window.visualViewport.addEventListener('scroll', adjust);
+        adjust();
+      }
+    }
+
+    function initElements() {
+      const ids = [
+        'sidebar','overlay','newProjectBtn','settingsSidebarBtn','projectList','projectCount','userStatus','creditsLabel',
+        'menuBtn','closeSidebarBtn','currentProjectName','downloadBtn','settingsBtn','messages','typingRow','previewFrame',
+        'codeHighlight','codeEditor','lineNumbers','copyCodeBtn','promptInput','sendBtn','settingsModal','settingsBackdrop',
+        'closeSettingsBtn','cancelSettingsBtn','apiUrlInput','apiKeyInput','modelIdInput','testConnectionBtn','saveSettingsBtn',
+        'authLoginTab','authSignupTab','authUsername','authPassword','authActionBtn','authActionLabel','authFormWrap','accountInfo',
+        'signedInUser','accountCredits','brandingStatus','logoutBtn','freeNotice','chatPanel','previewPanel','codePanel'
+      ];
+      ids.forEach(id => els[id] = document.getElementById(id));
+    }
+
+    function init() {
+      initElements();
+      loadState();
+      if (!state.projects.length) {
+        state.projects = [defaultProject()];
+        state.currentProjectId = state.projects[0].id;
+      }
+      const user = currentUser();
+      if (user) normalizeUser(user);
+      if (!state.messagesByProject[state.currentProjectId]) state.messagesByProject[state.currentProjectId] = createWelcomeMessages();
+      if (!state.generatedHtmlByProject[state.currentProjectId]) state.generatedHtmlByProject[state.currentProjectId] = demoHtml();
+      if (!state.codeDraftByProject[state.currentProjectId]) state.codeDraftByProject[state.currentProjectId] = state.generatedHtmlByProject[state.currentProjectId];
+      bindEvents();
+      state.authMode = 'login';
+      autoGrowTextarea(els.promptInput);
+      syncUi();
+      renderAuthPanel();
+      if (window.innerWidth < 768) renderMobileSidebar();
+      const current = currentHtml();
+      els.codeEditor.value = current;
+      els.codeHighlight.innerHTML = highlightCode(current);
+      els.previewFrame.srcdoc = current;
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
