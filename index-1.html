@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>AI Website Builder SaaS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            glow: '0 0 0 1px rgba(255,255,255,0.04), 0 24px 80px rgba(0,0,0,0.45)',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root{
+      --bg:#0B0F19;
+      --sidebar:#111827;
+      --card:#1A2234;
+      --accent:#3B82F6;
+      --accent2:#8B5CF6;
+      --border:rgba(255,255,255,0.08);
+      --text:#E5E7EB;
+      --muted:#94A3B8;
+    }
+    html,body{height:100%; background:var(--bg);}
+    body{
+      min-height:100dvh;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      color:var(--text);
+      font-family:'Inter',sans-serif;
+    }
+    *{box-sizing:border-box}
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:999px;border:2px solid transparent;background-clip:content-box}
+    ::-webkit-scrollbar-track{background:transparent}
+    .glass{backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);}
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border:1px solid var(--border);
+      box-shadow:0 10px 40px rgba(0,0,0,.24);
+    }
+    .soft-border{border:1px solid var(--border)}
+    .active-tab{
+      background:linear-gradient(135deg, rgba(59,130,246,.22), rgba(139,92,246,.22));
+      border-color:rgba(59,130,246,.45)!important;
+      color:#fff!important;
+      box-shadow:0 8px 24px rgba(59,130,246,.18);
+    }
+    .project-card.active{
+      background:linear-gradient(135deg, rgba(59,130,246,.18), rgba(139,92,246,.12));
+      border-color:rgba(59,130,246,.48);
+      box-shadow:0 10px 24px rgba(0,0,0,.28);
+    }
+    .message.user{
+      background:linear-gradient(135deg, rgba(59,130,246,.18), rgba(59,130,246,.10));
+      border:1px solid rgba(59,130,246,.24);
+    }
+    .message.assistant{
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .code-surface{
+      background:linear-gradient(180deg, rgba(10,14,24,.95), rgba(16,20,33,.92));
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .scrollbar-thin::-webkit-scrollbar{width:8px;height:8px}
+    .typing-dot{
+      width:8px;height:8px;border-radius:999px;background:#CBD5E1;display:inline-block;
+      animation:typing 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2){animation-delay:.15s}
+    .typing-dot:nth-child(3){animation-delay:.3s}
+    @keyframes typing{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-5px);opacity:1}}
+    .fade-in{animation:fadeIn .22s ease-out}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .preview-frame{
+      width:100%;
+      height:100%;
+      border:0;
+      background:white;
+      border-radius:16px;
+    }
+    .mobile-overlay{
+      background:rgba(2,6,23,.58);
+      backdrop-filter:blur(4px);
+    }
+    .btn{
+      transition:transform .15s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .text-gradient{
+      background:linear-gradient(90deg, #fff, #c7d2fe 35%, #93c5fd 70%, #fff);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .safe-bottom{padding-bottom:calc(env(safe-area-inset-bottom) + 10px)}
+    .line-clamp-2{
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .prose-lite p{margin:0 0 .75rem 0}
+    .prose-lite ul{margin:.5rem 0 .75rem 1.25rem; list-style:disc}
+    .prose-lite ol{margin:.5rem 0 .75rem 1.25rem; list-style:decimal}
+    .prose-lite a{color:#93c5fd; text-decoration:underline}
+    .prose-lite code{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background:rgba(255,255,255,.06);
+      padding:.12rem .34rem;
+      border-radius:.4rem;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .prose-lite pre{
+      overflow:auto;
+      background:rgba(2,6,23,.7);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:12px;
+      margin:.75rem 0;
+    }
+    .prose-lite pre code{background:transparent; border:0; padding:0; display:block; white-space:pre}
+    .keyword{color:#93c5fd}
+    .attr{color:#f9a8d4}
+    .string{color:#86efac}
+    .tag{color:#fda4af}
+    .comment{color:#94a3b8; font-style:italic}
+    .doctype{color:#f59e0b}
+    .preview-shell{
+      background:
+        radial-gradient(circle at 20% 20%, rgba(59,130,246,.12), transparent 34%),
+        radial-gradient(circle at 80% 18%, rgba(139,92,246,.12), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    }
+    .shadow-inset{box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+  </style>
+</head>
+<body>
+  <div id="app" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+    <div class="flex flex-1 min-h-0 overflow-hidden">
+      <aside id="sidebar" class="hidden lg:flex lg:w-[280px] flex-col border-r border-white/8 bg-[#111827] min-h-0">
+        <div class="p-4 space-y-4 min-h-0 flex flex-col h-full">
+          <button id="newProjectBtn" class="btn w-full rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-glow soft-border bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-400 hover:to-violet-400 flex items-center justify-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            New Project
+          </button>
+          <div class="flex items-center justify-between text-xs uppercase tracking-[0.28em] text-slate-400">
+            <span>Projects</span>
+            <span id="projectCount" class="text-slate-500">0</span>
+          </div>
+          <div id="projectList" class="flex-1 min-h-0 overflow-auto space-y-2 pr-1 scrollbar-thin"></div>
+          <div class="pt-4 mt-2 border-t border-white/8 space-y-3">
+            <button id="sidebarSettingsBtn" class="btn w-full flex items-center gap-3 rounded-2xl px-4 py-3 soft-border bg-white/5 hover:bg-white/8 text-sm text-slate-200">
+              <i data-lucide="settings-2" class="w-4 h-4 text-slate-300"></i>
+              Settings
+            </button>
+            <div class="flex items-center gap-3 rounded-2xl px-4 py-3 soft-border bg-white/5">
+              <div class="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(74,222,128,.55)]"></div>
+              <div class="min-w-0">
+                <div class="text-sm font-medium text-slate-100">Ready</div>
+                <div id="statusText" class="text-xs text-slate-400 truncate">Local storage synced</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div id="mobileOverlay" class="fixed inset-0 z-40 hidden lg:hidden mobile-overlay"></div>
+
+      <main class="flex-1 min-w-0 flex flex-col min-h-0 overflow-hidden">
+        <header class="panel glass mx-3 mt-3 lg:mx-4 lg:mt-4 rounded-3xl px-3 sm:px-4 py-3 flex items-center gap-3 z-20">
+          <button id="mobileMenuBtn" class="btn lg:hidden shrink-0 rounded-2xl px-3 py-2 soft-border bg-white/5 hover:bg-white/8">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="h-3 w-3 rounded-full bg-red-500/90 shadow-[0_0_10px_rgba(239,68,68,.35)]"></span>
+            <span class="h-3 w-3 rounded-full bg-yellow-400/90 shadow-[0_0_10px_rgba(250,204,21,.3)]"></span>
+            <span class="h-3 w-3 rounded-full bg-emerald-400/90 shadow-[0_0_10px_rgba(34,197,94,.3)]"></span>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-blue-300 bg-blue-500/10 border border-blue-400/15 shrink-0">AI Builder</span>
+              <h1 id="projectTitle" class="min-w-0 truncate text-sm sm:text-base font-semibold text-gradient">Untitled Project</h1>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            <button id="chatTabBtn" class="btn rounded-2xl px-3 sm:px-4 py-2 text-sm font-medium soft-border bg-white/5 hover:bg-white/8 text-slate-200">Chat</button>
+            <button id="previewTabBtn" class="btn rounded-2xl px-3 sm:px-4 py-2 text-sm font-medium soft-border bg-white/5 hover:bg-white/8 text-slate-200 flex items-center gap-2">
+              <i data-lucide="scan-search" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Preview</span>
+            </button>
+            <button id="codeTabBtn" class="btn rounded-2xl px-3 sm:px-4 py-2 text-sm font-medium soft-border bg-white/5 hover:bg-white/8 text-slate-200 flex items-center gap-2">
+              <i data-lucide="code-2" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Code</span>
+            </button>
+            <button id="downloadBtn" class="btn rounded-2xl px-3 sm:px-4 py-2 text-sm font-medium soft-border bg-white/5 hover:bg-white/8 text-slate-200 flex items-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Download</span>
+            </button>
+            <button id="settingsBtn" class="btn rounded-2xl px-3 sm:px-4 py-2 text-sm font-medium soft-border bg-white/5 hover:bg-white/8 text-slate-200 flex items-center gap-2">
+              <i data-lucide="settings-2" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Settings</span>
+            </button>
+          </div>
+        </header>
+
+        <section class="flex-1 min-h-0 overflow-hidden px-3 py-3 lg:px-4 lg:py-4">
+          <div class="h-full panel glass rounded-[28px] overflow-hidden flex flex-col min-h-0">
+            <div id="chatPanel" class="flex-1 min-h-0 overflow-hidden flex flex-col">
+              <div id="chatMessages" class="flex-1 min-h-0 overflow-auto px-3 sm:px-5 py-4 sm:py-6 space-y-4 scrollbar-thin"></div>
+            </div>
+
+            <div id="previewPanel" class="hidden flex-1 min-h-0 overflow-hidden p-3 sm:p-5">
+              <div class="h-full rounded-[24px] preview-shell soft-border overflow-hidden p-3 sm:p-4">
+                <div class="flex items-center justify-between gap-3 pb-3">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-100">Live Preview</div>
+                    <div class="text-xs text-slate-400">Sandboxed iframe • responsive viewport</div>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-slate-400">
+                    <span id="previewSizeLabel" class="rounded-full soft-border bg-white/5 px-3 py-1">Desktop</span>
+                  </div>
+                </div>
+                <div class="h-[calc(100%-52px)] rounded-[20px] overflow-hidden bg-white soft-border">
+                  <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"></iframe>
+                </div>
+              </div>
+            </div>
+
+            <div id="codePanel" class="hidden flex-1 min-h-0 overflow-hidden p-3 sm:p-5">
+              <div class="h-full rounded-[24px] code-surface overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/8">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-100">Generated HTML</div>
+                    <div class="text-xs text-slate-400">Monaco-like editor surface</div>
+                  </div>
+                  <button id="copyCodeBtn" class="btn rounded-2xl px-3 py-2 text-sm font-medium soft-border bg-white/5 hover:bg-white/8 text-slate-200 flex items-center gap-2">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    Copy
+                  </button>
+                </div>
+                <div class="flex-1 min-h-0 overflow-auto font-mono text-[13px] leading-6">
+                  <div id="codeEditor" class="grid grid-cols-[auto_1fr] min-h-full">
+                    <div id="lineNumbers" class="select-none text-right px-4 py-4 text-slate-500 bg-black/10 border-r border-white/8 whitespace-pre"></div>
+                    <pre id="codeContent" class="px-4 py-4 overflow-visible whitespace-pre-wrap break-words text-slate-200"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="flex-shrink-0 panel glass mx-3 mb-3 lg:mx-4 lg:mb-4 rounded-3xl px-3 sm:px-4 py-3 safe-bottom">
+          <div class="flex items-end gap-3">
+            <div class="flex-1 min-w-0">
+              <label for="promptInput" class="sr-only">Enter prompt</label>
+              <textarea id="promptInput" rows="1" placeholder="Describe the website, sections, tone, and style..." class="w-full resize-none rounded-3xl soft-border bg-white/5 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-blue-500/35 focus:border-blue-400/30 min-h-[52px] max-h-[180px]"></textarea>
+            </div>
+            <button id="sendBtn" class="btn shrink-0 rounded-3xl px-5 py-3 text-sm font-semibold text-white shadow-glow bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-400 hover:to-violet-400 flex items-center gap-2 min-h-[52px]">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              Send
+            </button>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <div id="settingsModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4">
+      <div class="absolute inset-0 bg-black/60"></div>
+      <div class="relative w-full max-w-2xl panel glass rounded-[28px] overflow-hidden shadow-glow">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-white/8">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-100">Settings</h2>
+            <p class="text-sm text-slate-400">API settings and generation model</p>
+          </div>
+          <button id="closeSettingsBtn" class="btn rounded-2xl px-3 py-2 soft-border bg-white/5 hover:bg-white/8 text-slate-200">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="p-5 space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-200 mb-2">API URL</label>
+            <input id="apiUrlInput" type="text" class="w-full rounded-2xl soft-border bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/35" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-200 mb-2">API Key</label>
+            <input id="apiKeyInput" type="password" class="w-full rounded-2xl soft-border bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/35" placeholder="sk-..." />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-200 mb-2">Model ID</label>
+            <input id="modelIdInput" type="text" class="w-full rounded-2xl soft-border bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/35" />
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <button id="testConnectionBtn" class="btn rounded-2xl px-4 py-3 soft-border bg-white/5 hover:bg-white/8 text-sm text-slate-200 flex items-center gap-2">
+              <i data-lucide="plug-zap" class="w-4 h-4"></i>
+              Test Connection
+            </button>
+            <div class="flex items-center gap-2 ml-auto">
+              <button id="cancelSettingsBtn" class="btn rounded-2xl px-4 py-3 soft-border bg-white/5 hover:bg-white/8 text-sm text-slate-200">Cancel</button>
+              <button id="saveSettingsBtn" class="btn rounded-2xl px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-400 hover:to-violet-400">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const DEFAULT_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+  const SYSTEM_PROMPT = `
+You are an expert web developer.
+
+Output ONLY raw HTML.
+
+No markdown.
+No explanations.
+No code fences.
+
+Return complete HTML documents only.
+`.trim();
+
+  const LS = {
+    settings: "aiwb.settings",
+    projects: "aiwb.projects",
+    activeProject: "aiwb.activeProject",
+    activeTab: "aiwb.activeTab"
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  const els = {
+    sidebar: $("sidebar"),
+    mobileMenuBtn: $("mobileMenuBtn"),
+    mobileOverlay: $("mobileOverlay"),
+    newProjectBtn: $("newProjectBtn"),
+    projectList: $("projectList"),
+    projectCount: $("projectCount"),
+    projectTitle: $("projectTitle"),
+    statusText: $("statusText"),
+    chatMessages: $("chatMessages"),
+    promptInput: $("promptInput"),
+    sendBtn: $("sendBtn"),
+    previewPanel: $("previewPanel"),
+    chatPanel: $("chatPanel"),
+    codePanel: $("codePanel"),
+    previewFrame: $("previewFrame"),
+    codeContent: $("codeContent"),
+    lineNumbers: $("lineNumbers"),
+    copyCodeBtn: $("copyCodeBtn"),
+    chatTabBtn: $("chatTabBtn"),
+    previewTabBtn: $("previewTabBtn"),
+    codeTabBtn: $("codeTabBtn"),
+    downloadBtn: $("downloadBtn"),
+    settingsBtn: $("settingsBtn"),
+    sidebarSettingsBtn: $("sidebarSettingsBtn"),
+    settingsModal: $("settingsModal"),
+    closeSettingsBtn: $("closeSettingsBtn"),
+    cancelSettingsBtn: $("cancelSettingsBtn"),
+    saveSettingsBtn: $("saveSettingsBtn"),
+    testConnectionBtn: $("testConnectionBtn"),
+    apiUrlInput: $("apiUrlInput"),
+    apiKeyInput: $("apiKeyInput"),
+    modelIdInput: $("modelIdInput"),
+    previewSizeLabel: $("previewSizeLabel")
+  };
+
+  const state = {
+    settings: {
+      apiUrl: DEFAULT_API_URL,
+      apiKey: "",
+      modelId: "deepseek/deepseek-r1:free"
+    },
+    projects: [],
+    activeProjectId: null,
+    activeTab: "chat",
+    isTyping: false,
+    mobileSidebarOpen: false
+  };
+
+  function uid() {
+    return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+  }
+
+  function escapeHtml(text = "") {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function formatTime(ts) {
+    try {
+      return new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }).format(new Date(ts));
+    } catch {
+      return new Date(ts).toLocaleString();
+    }
+  }
+
+  function titleCaseWords(text) {
+    return text
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 6)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ");
+  }
+
+  function deriveProjectName(prompt) {
+    const cleaned = String(prompt || "")
+      .replace(/[`*"#>{}\[\]\(\)!]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!cleaned) return "Untitled Project";
+    return titleCaseWords(cleaned).slice(0, 42) || "Untitled Project";
+  }
+
+  function defaultStarterHtml(prompt = "Launch your next product") {
+    const title = deriveProjectName(prompt);
+    const hero = prompt ? prompt.slice(0, 120) : "Build a premium website in minutes";
+    return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    :root{
+      --bg:#0b0f19;
+      --panel:#111827;
+      --card:#1a2234;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --blue:#3b82f6;
+      --violet:#8b5cf6;
+      --border:rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(59,130,246,.18), transparent 30%),
+        radial-gradient(circle at 80% 15%, rgba(139,92,246,.16), transparent 28%),
+        var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1180px;margin:0 auto;padding:24px}
+    .nav,.hero,.grid,.cta,.footer,.stats{border:1px solid var(--border);background:rgba(255,255,255,.03);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 16px 60px rgba(0,0,0,.24)}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-radius:24px}
+    .brand{font-weight:800;letter-spacing:-.02em}
+    .pill{padding:10px 16px;border-radius:999px;background:linear-gradient(135deg, rgba(59,130,246,.22), rgba(139,92,246,.22));border:1px solid rgba(255,255,255,.08);color:#fff;font-weight:600}
+    .hero{margin-top:18px;padding:38px 28px;border-radius:32px}
+    h1{font-size:clamp(2.6rem,6vw,5.5rem);line-height:.95;margin:0 0 14px;letter-spacing:-.05em}
+    .sub{max-width:720px;color:var(--muted);font-size:1.08rem;line-height:1.7}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+    .btn{padding:14px 20px;border-radius:16px;font-weight:700;border:1px solid var(--border);text-decoration:none;color:#fff}
+    .btn.primary{background:linear-gradient(135deg,var(--blue),var(--violet))}
+    .btn.secondary{background:rgba(255,255,255,.05)}
+    .stats,.grid{margin-top:18px;border-radius:28px;padding:24px}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    .stat{padding:18px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+    .stat b{display:block;font-size:1.8rem;margin-bottom:6px}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .card{padding:22px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+    .card h3{margin:0 0 10px;font-size:1.05rem}
+    .card p{margin:0;color:var(--muted);line-height:1.65}
+    .cta,.footer{margin-top:18px;padding:22px;border-radius:28px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .small{color:var(--muted);font-size:.95rem}
+    @media (max-width:900px){
+      .stats,.grid{grid-template-columns:1fr 1fr}
+      .cta,.footer{flex-direction:column;align-items:flex-start}
+    }
+    @media (max-width:640px){
+      .stats,.grid{grid-template-columns:1fr}
+      .hero{padding:28px 20px}
+      .wrap{padding:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <div class="brand">${escapeHtml(title)}</div>
+      <div class="pill">Built with AI Website Builder</div>
+    </div>
+
+    <section class="hero">
+      <h1>${escapeHtml(hero)}</h1>
+      <p class="sub">A polished, conversion-ready landing page concept generated from your brief. Swap the copy, tune the sections, and ship fast.</p>
+      <div class="actions">
+        <a class="btn primary" href="#contact">Start Now</a>
+        <a class="btn secondary" href="#features">Explore Features</a>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat"><b>24/7</b><span class="small">High availability</span></div>
+      <div class="stat"><b>3x</b><span class="small">Faster launch</span></div>
+      <div class="stat"><b>99%</b><span class="small">Responsive score</span></div>
+      <div class="stat"><b>∞</b><span class="small">Iterations possible</span></div>
+    </section>
+
+    <section id="features" class="grid">
+      <article class="card"><h3>Premium design</h3><p>Glass surfaces, tight spacing, and strong hierarchy that reads like a real product.</p></article>
+      <article class="card"><h3>Built for conversion</h3><p>Clear CTA placement, social proof blocks, and scannable benefit sections.</p></article>
+      <article class="card"><h3>Mobile ready</h3><p>Responsive by default, with layouts that collapse cleanly on smaller screens.</p></article>
+    </section>
+
+    <section class="cta" id="contact">
+      <div>
+        <h2 style="margin:0 0 8px;">Ready to ship?</h2>
+        <div class="small">Use the editor to refine this into a real product page.</div>
+      </div>
+      <a class="btn primary" href="#">Get Started</a>
+    </section>
+
+    <footer class="footer">
+      <div class="small">© ${new Date().getFullYear()} ${escapeHtml(title)}</div>
+      <div class="small">Designed for speed, clarity, and impact.</div>
+    </footer>
+  </div>
+</body>
+</html>`;
+  }
+
+  function stripCodeFences(text) {
+    const trimmed = String(text || "").trim();
+    if (trimmed.startsWith("```")) {
+      return trimmed
+        .replace(/^```[a-zA-Z]*\n?/, "")
+        .replace(/\n?```$/, "")
+        .trim();
+    }
+    return trimmed;
+  }
+
+  function maybeExtractHtml(text) {
+    const cleaned = stripCodeFences(text);
+    if (/<!doctype html>|<html[\s>]/i.test(cleaned)) return cleaned;
+    if (/<body[\s>]/i.test(cleaned) || /<head[\s>]/i.test(cleaned)) {
+      return `<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head><body>${cleaned}</body></html>`;
+    }
+    return cleaned;
+  }
+
+  function sanitizeHtmlForPreview(html) {
+    return String(html || "");
+  }
+
+  function renderMarkdown(md) {
+    let text = escapeHtml(String(md || ""));
+    text = text.replace(/\r/g, "");
+
+    const codeBlocks = [];
+    text = text.replace(/```([\s\S]*?)```/g, (_, code) => {
+      const token = `@@CODEBLOCK_${codeBlocks.length}@@`;
+      codeBlocks.push(`<pre><code>${code}</code></pre>`);
+      return token;
+    });
+
+    text = text
+      .replace(/^###### (.*)$/gm, "<h6>$1</h6>")
+      .replace(/^##### (.*)$/gm, "<h5>$1</h5>")
+      .replace(/^#### (.*)$/gm, "<h4>$1</h4>")
+      .replace(/^### (.*)$/gm, "<h3>$1</h3>")
+      .replace(/^## (.*)$/gm, "<h2>$1</h2>")
+      .replace(/^# (.*)$/gm, "<h1>$1</h1>");
+
+    text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    text = text.replace(/__(.+?)__/g, "<strong>$1</strong>");
+    text = text.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    text = text.replace(/`(.+?)`/g, "<code>$1</code>");
+    text = text.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+
+    const paragraphs = text.split(/\n{2,}/).map(chunk => {
+      if (/^<h[1-6]>/.test(chunk) || /^<pre><code>/.test(chunk) || /^<ul>/.test(chunk) || /^<ol>/.test(chunk)) return chunk;
+      const lines = chunk.split("\n");
+      if (lines.every(line => /^-\s+/.test(line))) {
+        return `<ul>${lines.map(line => `<li>${line.replace(/^-\s+/, "")}</li>`).join("")}</ul>`;
+      }
+      if (lines.every(line => /^\d+\.\s+/.test(line))) {
+        return `<ol>${lines.map(line => `<li>${line.replace(/^\d+\.\s+/, "")}</li>`).join("")}</ol>`;
+      }
+      return `<p>${chunk.replace(/\n/g, "<br>")}</p>`;
+    }).join("");
+
+    let out = paragraphs
+      .replace(/@@CODEBLOCK_(\d+)@@/g, (_, i) => codeBlocks[Number(i)] || "");
+
+    return out;
+  }
+
+  function escapeForCodeHighlight(code) {
+    const escaped = escapeHtml(code);
+    return escaped
+      .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="comment">$1</span>')
+      .replace(/(&lt;!DOCTYPE[\s\S]*?&gt;|&lt;!doctype[\s\S]*?&gt;)/g, '<span class="doctype">$1</span>')
+      .replace(/(&lt;\/?)([a-zA-Z0-9:-]+)/g, '$1<span class="tag">$2</span>')
+      .replace(/(\s)([a-zA-Z-:]+)(=)(&quot;.*?&quot;|&#39;.*?&#39;)/g, '$1<span class="attr">$2</span>$3<span class="string">$4</span>')
+      .replace(/(&quot;.*?&quot;|&#39;.*?&#39;)/g, '<span class="string">$1</span>')
+      .replace(/\b(const|let|var|function|return|if|else|for|while|await|async|try|catch|JSON\.parse|fetch|new|class|true|false|null|undefined)\b/g, '<span class="keyword">$1</span>');
+  }
+
+  function scrollChatToBottom() {
+    requestAnimationFrame(() => {
+      els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+    });
+  }
+
+  function scrollCodeToTop() {
+    const editor = $("codeEditor");
+    if (editor) editor.parentElement.scrollTop = 0;
+  }
+
+  function updatePreviewResponsiveLabel() {
+    const w = window.innerWidth;
+    els.previewSizeLabel.textContent = w < 640 ? "Mobile" : w < 1024 ? "Tablet" : "Desktop";
+  }
+
+  function getActiveProject() {
+    return state.projects.find(p => p.id === state.activeProjectId) || null;
+  }
+
+  function ensureActiveProject() {
+    if (!state.projects.length) {
+      const project = createProject("Untitled Project");
+      state.projects.unshift(project);
+      state.activeProjectId = project.id;
+      persist();
+      return project;
+    }
+    let active = getActiveProject();
+    if (!active) {
+      active = state.projects[0];
+      state.activeProjectId = active.id;
+    }
+    return active;
+  }
+
+  function createProject(name = "Untitled Project", prompt = "") {
+    const now = Date.now();
+    return {
+      id: uid(),
+      name,
+      createdAt: now,
+      updatedAt: now,
+      messages: [
+        {
+          id: uid(),
+          role: "assistant",
+          content: `Ready. Describe the website you want, and I’ll generate the HTML, preview, and code.`,
+          ts: now
+        }
+      ],
+      generatedHtml: defaultStarterHtml(prompt || name)
+    };
+  }
+
+  function persist() {
+    localStorage.setItem(LS.settings, JSON.stringify(state.settings));
+    localStorage.setItem(LS.projects, JSON.stringify(state.projects));
+    localStorage.setItem(LS.activeProject, state.activeProjectId || "");
+    localStorage.setItem(LS.activeTab, state.activeTab);
+    render();
+  }
+
+  function loadState() {
+    try {
+      const settings = JSON.parse(localStorage.getItem(LS.settings) || "null");
+      if (settings && typeof settings === "object") {
+        state.settings.apiUrl = settings.apiUrl || DEFAULT_API_URL;
+        state.settings.apiKey = settings.apiKey || "";
+        state.settings.modelId = settings.modelId || "deepseek/deepseek-r1:free";
+      }
+    } catch {}
+    try {
+      const projects = JSON.parse(localStorage.getItem(LS.projects) || "null");
+      if (Array.isArray(projects) && projects.length) {
+        state.projects = projects;
+      }
+    } catch {}
+    state.activeProjectId = localStorage.getItem(LS.activeProject) || (state.projects[0] && state.projects[0].id) || null;
+    state.activeTab = localStorage.getItem(LS.activeTab) || "chat";
+    if (!state.projects.length) {
+      const p = createProject("Untitled Project");
+      state.projects = [p];
+      state.activeProjectId = p.id;
+    }
+    const active = ensureActiveProject();
+    if (!active.generatedHtml) active.generatedHtml = defaultStarterHtml(active.messages?.at(-1)?.content || active.name);
+    if (!active.messages || !active.messages.length) {
+      active.messages = [{
+        id: uid(),
+        role: "assistant",
+        content: "Ready. Describe the website you want, and I’ll generate the HTML, preview, and code.",
+        ts: Date.now()
+      }];
+    }
+  }
+
+  function setActiveTab(tab) {
+    state.activeTab = tab;
+    persist();
+    syncTabUi();
+    if (tab === "code") scrollCodeToTop();
+    if (tab === "preview") updatePreview();
+  }
+
+  function syncTabUi() {
+    const tabs = {
+      chat: els.chatTabBtn,
+      preview: els.previewTabBtn,
+      code: els.codeTabBtn
+    };
+    Object.entries(tabs).forEach(([tab, btn]) => {
+      btn.classList.toggle("active-tab", state.activeTab === tab);
+    });
+
+    els.chatPanel.classList.toggle("hidden", state.activeTab !== "chat");
+    els.previewPanel.classList.toggle("hidden", state.activeTab !== "preview");
+    els.codePanel.classList.toggle("hidden", state.activeTab !== "code");
+  }
+
+  function renderProjects() {
+    const ordered = [...state.projects].sort((a,b) => (b.updatedAt || b.createdAt) - (a.updatedAt || a.createdAt));
+    els.projectCount.textContent = String(ordered.length);
+    els.projectList.innerHTML = ordered.map(project => {
+      const active = project.id === state.activeProjectId;
+      const latest = [...(project.messages || [])].reverse().find(m => m.role === "user")?.content || project.name;
+      return `
+        <button data-project-id="${project.id}" class="project-card ${active ? "active" : ""} w-full text-left rounded-2xl px-4 py-3 soft-border bg-white/5 hover:bg-white/8 transition-all">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="h-2.5 w-2.5 rounded-full ${active ? "bg-blue-400 shadow-[0_0_14px_rgba(59,130,246,.55)]" : "bg-white/20"}"></span>
+                <div class="text-sm font-semibold text-slate-100 truncate">${escapeHtml(project.name || "Untitled Project")}</div>
+              </div>
+              <div class="mt-2 text-xs text-slate-400 line-clamp-2">${escapeHtml(latest)}</div>
+            </div>
+          </div>
+          <div class="mt-3 text-[11px] tracking-wide uppercase text-slate-500">${formatTime(project.updatedAt || project.createdAt || Date.now())}</div>
+        </button>
+      `;
+    }).join("");
+    els.projectList.querySelectorAll("[data-project-id]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        state.activeProjectId = btn.dataset.projectId;
+        persist();
+        render();
+      });
+    });
+  }
+
+  function renderMessages() {
+    const active = ensureActiveProject();
+    els.projectTitle.textContent = active.name || "Untitled Project";
+    els.chatMessages.innerHTML = (active.messages || []).map(msg => {
+      const base = msg.role === "user" ? "user ml-auto max-w-[88%] sm:max-w-[76%]" : "assistant max-w-[96%] sm:max-w-[82%]";
+      const body = msg.role === "assistant" && /<\w|<!doctype/i.test(msg.content || "")
+        ? `<pre class="whitespace-pre-wrap break-words text-[13px] leading-6"><code>${escapeHtml(msg.content || "")}</code></pre>`
+        : `<div class="prose-lite text-sm sm:text-[15px] leading-7">${msg.role === "user" ? renderMarkdown(msg.content || "") : renderMarkdown(msg.content || "")}</div>`;
+      return `
+        <div class="message ${base} rounded-[24px] px-4 py-4 fade-in shadow-[0_10px_24px_rgba(0,0,0,.15)]">
+          <div class="flex items-center justify-between gap-3 mb-3">
+            <div class="text-[11px] uppercase tracking-[0.24em] ${msg.role === "user" ? "text-blue-200" : "text-slate-400"}">${msg.role === "user" ? "You" : "AI"}</div>
+            <div class="text-[11px] text-slate-500">${formatTime(msg.ts || Date.now())}</div>
+          </div>
+          ${body}
+        </div>
+      `;
+    }).join("");
+
+    if (state.isTyping) {
+      els.chatMessages.insertAdjacentHTML("beforeend", `
+        <div class="message assistant max-w-[220px] rounded-[24px] px-4 py-4 fade-in">
+          <div class="text-[11px] uppercase tracking-[0.24em] text-slate-400 mb-3">AI</div>
+          <div class="flex items-center gap-2">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+      `);
+    }
+    scrollChatToBottom();
+  }
+
+  function renderCode() {
+    const active = ensureActiveProject();
+    const code = active.generatedHtml || defaultStarterHtml(active.name);
+    const highlighted = escapeForCodeHighlight(code);
+    els.codeContent.innerHTML = highlighted;
+    const lineCount = Math.max(1, code.split(/\n/).length);
+    els.lineNumbers.textContent = Array.from({length: lineCount}, (_, i) => String(i + 1)).join("\n");
+  }
+
+  function updatePreview() {
+    const active = ensureActiveProject();
+    const html = sanitizeHtmlForPreview(active.generatedHtml || defaultStarterHtml(active.name));
+    els.previewFrame.srcdoc = html;
+  }
+
+  function renderStatus() {
+    const hasKey = !!state.settings.apiKey.trim();
+    els.statusText.textContent = hasKey ? "OpenRouter configured" : "Local fallback ready";
+  }
+
+  function renderSettingsInputs() {
+    els.apiUrlInput.value = state.settings.apiUrl || DEFAULT_API_URL;
+    els.apiKeyInput.value = state.settings.apiKey || "";
+    els.modelIdInput.value = state.settings.modelId || "deepseek/deepseek-r1:free";
+  }
+
+  function render() {
+    renderProjects();
+    renderMessages();
+    renderCode();
+    updatePreview();
+    syncTabUi();
+    renderStatus();
+    updatePreviewResponsiveLabel();
+    lucide.createIcons();
+  }
+
+  function openSettings() {
+    renderSettingsInputs();
+    els.settingsModal.classList.remove("hidden");
+    els.settingsModal.classList.add("flex");
+  }
+
+  function closeSettings() {
+    els.settingsModal.classList.add("hidden");
+    els.settingsModal.classList.remove("flex");
+  }
+
+  function updateProjectFromAssistant(htmlOrText) {
+    const active = ensureActiveProject();
+    const html = maybeExtractHtml(htmlOrText);
+    active.generatedHtml = /<\w|<!doctype/i.test(html) ? html : defaultStarterHtml(html);
+    active.updatedAt = Date.now();
+  }
+
+  function pushMessage(role, content) {
+    const active = ensureActiveProject();
+    const msg = { id: uid(), role, content, ts: Date.now() };
+    active.messages.push(msg);
+    active.updatedAt = Date.now();
+    if (role === "user" && active.name === "Untitled Project") {
+      active.name = deriveProjectName(content);
+    }
+    return msg;
+  }
+
+  function buildMessagesForApi(active) {
+    const conversation = (active.messages || [])
+      .filter(m => m.role === "user" || m.role === "assistant")
+      .map(m => ({ role: m.role, content: m.content }));
+    return [{ role: "system", content: SYSTEM_PROMPT }, ...conversation];
+  }
+
+  async function generateWithApi(active) {
+    const payload = {
+      model: state.settings.modelId,
+      messages: buildMessagesForApi(active),
+      temperature: 0.2,
+      max_tokens: 8000
+    };
+
+    const response = await fetch(state.settings.apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${state.settings.apiKey}`,
+        "HTTP-Referer": location.origin,
+        "X-Title": document.title
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await response.text();
+    if (!response.ok) {
+      alert("API Error: " + text);
+      return null;
+    }
+    const data = JSON.parse(text);
+    return data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? "";
+  }
+
+  function localGenerate(prompt) {
+    return defaultStarterHtml(prompt || "Untitled Project");
+  }
+
+  async function handleSend() {
+    const prompt = els.promptInput.value.trim();
+    if (!prompt || state.isTyping) return;
+
+    const active = ensureActiveProject();
+    pushMessage("user", prompt);
+    els.promptInput.value = "";
+    autoGrowTextarea();
+    state.isTyping = true;
+    persist();
+    render();
+
+    try {
+      let result;
+      if (state.settings.apiKey.trim()) {
+        result = await generateWithApi(active);
+      } else {
+        result = localGenerate(prompt);
+      }
+
+      if (!result) {
+        state.isTyping = false;
+        persist();
+        render();
+        return;
+      }
+
+      pushMessage("assistant", stripCodeFences(result));
+      updateProjectFromAssistant(result);
+      state.isTyping = false;
+      persist();
+      render();
+      setActiveTab("preview");
+    } catch (err) {
+      state.isTyping = false;
+      persist();
+      render();
+      alert("Request failed: " + (err && err.message ? err.message : String(err)));
+    }
+  }
+
+  function autoGrowTextarea() {
+    const el = els.promptInput;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 180) + "px";
+  }
+
+  function newProject() {
+    const project = createProject("Untitled Project");
+    state.projects.unshift(project);
+    state.activeProjectId = project.id;
+    state.activeTab = "chat";
+    persist();
+    render();
+    els.promptInput.focus();
+  }
+
+  function downloadCurrent() {
+    const active = ensureActiveProject();
+    const html = active.generatedHtml || defaultStarterHtml(active.name);
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "index.html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function copyCode() {
+    const active = ensureActiveProject();
+    const code = active.generatedHtml || defaultStarterHtml(active.name);
+    try {
+      await navigator.clipboard.writeText(code);
+      els.copyCodeBtn.innerHTML = '<i data-lucide="copy-check" class="w-4 h-4"></i> Copied';
+      lucide.createIcons();
+      setTimeout(() => {
+        els.copyCodeBtn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i> Copy';
+        lucide.createIcons();
+      }, 1200);
+    } catch {
+      alert("Copy failed.");
+    }
+  }
+
+  async function testConnection() {
+    const temp = {
+      apiUrl: els.apiUrlInput.value.trim() || DEFAULT_API_URL,
+      apiKey: els.apiKeyInput.value.trim(),
+      modelId: els.modelIdInput.value.trim() || "deepseek/deepseek-r1:free"
+    };
+    if (!temp.apiKey) {
+      alert("API key is required to test the connection.");
+      return;
+    }
+    const old = { ...state.settings };
+    state.settings = temp;
+    try {
+      const response = await fetch(temp.apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${temp.apiKey}`,
+          "HTTP-Referer": location.origin,
+          "X-Title": document.title
+        },
+        body: JSON.stringify({
+          model: temp.modelId,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: "Return a minimal valid HTML document for a landing page." }
+          ],
+          temperature: 0.1
+        })
+      });
+      const text = await response.text();
+      if (!response.ok) {
+        alert("API Error: " + text);
+        state.settings = old;
+        return;
+      }
+      const data = JSON.parse(text);
+      const content = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? "";
+      alert(content ? "Connection successful." : "Connection successful, but no content returned.");
+    } catch (err) {
+      alert("Connection failed: " + (err && err.message ? err.message : String(err)));
+    } finally {
+      state.settings = old;
+    }
+  }
+
+  function saveSettings() {
+    state.settings = {
+      apiUrl: els.apiUrlInput.value.trim() || DEFAULT_API_URL,
+      apiKey: els.apiKeyInput.value.trim(),
+      modelId: els.modelIdInput.value.trim() || "deepseek/deepseek-r1:free"
+    };
+    persist();
+    render();
+    closeSettings();
+  }
+
+  function bindEvents() {
+    els.newProjectBtn.addEventListener("click", newProject);
+    els.settingsBtn.addEventListener("click", openSettings);
+    els.sidebarSettingsBtn.addEventListener("click", openSettings);
+    els.closeSettingsBtn.addEventListener("click", closeSettings);
+    els.cancelSettingsBtn.addEventListener("click", closeSettings);
+    els.saveSettingsBtn.addEventListener("click", saveSettings);
+    els.testConnectionBtn.addEventListener("click", testConnection);
+
+    els.chatTabBtn.addEventListener("click", () => setActiveTab("chat"));
+    els.previewTabBtn.addEventListener("click", () => setActiveTab("preview"));
+    els.codeTabBtn.addEventListener("click", () => setActiveTab("code"));
+    els.downloadBtn.addEventListener("click", downloadCurrent);
+    els.copyCodeBtn.addEventListener("click", copyCode);
+
+    els.sendBtn.addEventListener("click", handleSend);
+
+    els.promptInput.addEventListener("input", () => {
+      autoGrowTextarea();
+    });
+
+    els.promptInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    });
+
+    els.mobileMenuBtn.addEventListener("click", () => {
+      state.mobileSidebarOpen = true;
+      els.sidebar.classList.remove("hidden");
+      els.sidebar.classList.add("fixed", "z-50", "inset-y-0", "left-0", "w-[290px]");
+      els.mobileOverlay.classList.remove("hidden");
+    });
+
+    els.mobileOverlay.addEventListener("click", closeMobileSidebar);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeSettings();
+        closeMobileSidebar();
+      }
+    });
+
+    window.addEventListener("resize", updatePreviewResponsiveLabel);
+  }
+
+  function closeMobileSidebar() {
+    if (!state.mobileSidebarOpen) return;
+    state.mobileSidebarOpen = false;
+    els.sidebar.classList.add("hidden");
+    els.sidebar.classList.remove("fixed", "z-50", "inset-y-0", "left-0", "w-[290px]");
+    els.mobileOverlay.classList.add("hidden");
+  }
+
+  function init() {
+    loadState();
+    bindEvents();
+    render();
+    autoGrowTextarea();
+    if (state.activeTab) syncTabUi();
+    const active = ensureActiveProject();
+    if (active.messages.length <= 1 && !els.promptInput.value.trim()) {
+      els.promptInput.placeholder = "Example: Build a premium AI SaaS landing page with pricing, testimonials, and CTA...";
+    }
+    setTimeout(() => {
+      render();
+      if (window.lucide) lucide.createIcons();
+    }, 0);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
